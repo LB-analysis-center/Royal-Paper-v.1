@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Royal Paper Co., Ltd. - Royal Paper Social Media Insight Dashboard 2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <style>
+        /* ========== ROYAL PAPER LUXURY THEME - PURPLE & GOLD ========== */
+        :root {
+            --luxury-purple: #a855f7;
+            --luxury-dark-purple: #7c3aed;
+            --luxury-deep-purple: #5b21b6;
+            --luxury-gold: #fbbf24;
+            --luxury-gold-light: #fcd34d;
+            --luxury-gold-dark: #d97706;
+            --luxury-bg-dark: #05010f;
+            --luxury-bg-medium: #0f0a1a;
+            --luxury-bg-light: #1a1428;
+            --luxury-bg-card: rgba(26, 20, 40, 0.85);
+            --luxury-border: rgba(139, 92, 246, 0.4);
+            --luxury-border-glow: rgba(168, 85, 247, 0.6);
+            --luxury-text: #f3f0ff;
+            --luxury-text-muted: #c4b5fd;
+            --luxury-text-dim: #9ca3af;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans Thai', sans-serif;
+            background: radial-gradient(circle at 10% 20%, #0a0418 0%, #03000a 100%);
+            color: var(--luxury-text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        /* Header Luxury Style */
+        .header {
+            background: linear-gradient(135deg, rgba(20, 12, 35, 0.95) 0%, rgba(5, 1, 15, 0.98) 100%);
+            backdrop-filter: blur(12px);
+            padding: 28px 24px 18px;
+            border-bottom: 2px solid var(--luxury-purple);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), 0 0 25px rgba(168, 85, 247, 0.2);
+        }
+        
+        .header-title {
+            font-size: 36px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--luxury-gold) 0%, var(--luxury-purple) 40%, #d8b4fe 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 10px;
+            letter-spacing: -0.5px;
+            text-shadow: 0 2px 5px rgba(168, 85, 247, 0.2);
+        }
+        
+        .header-subtitle {
+            font-size: 15px;
+            color: var(--luxury-text-muted);
+            letter-spacing: 0.8px;
+            font-weight: 400;
+        }
+        
+        /* Tab Navigation */
+        .tab-nav {
+            display: flex;
+            gap: 14px;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            padding: 18px 24px 12px;
+            background: linear-gradient(180deg, rgba(15, 10, 26, 0.9) 0%, rgba(5, 1, 15, 0.7) 100%);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid rgba(139, 92, 246, 0.25);
+        }
+        
+        .tab-nav::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .tab-button {
+            white-space: nowrap;
+            flex-shrink: 0;
+            padding: 12px 28px;
+            border: 1.5px solid var(--luxury-border);
+            border-radius: 60px;
+            background: rgba(26, 20, 40, 0.6);
+            backdrop-filter: blur(8px);
+            color: var(--luxury-text-muted);
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            letter-spacing: 0.3px;
+        }
+        
+        .tab-button:hover {
+            border-color: var(--luxury-purple);
+            color: white;
+            background: rgba(168, 85, 247, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(168, 85, 247, 0.2);
+        }
+        
+        .tab-button.active {
+            background: linear-gradient(135deg, var(--luxury-purple) 0%, var(--luxury-dark-purple) 100%);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 8px 25px rgba(168, 85, 247, 0.5);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 28px 24px;
+        }
+        
+        .tab-content {
+            display: none;
+            animation: fadeInUp 0.45s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(18px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* KPI Cards Luxury */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            margin-bottom: 36px;
+        }
+        
+        .kpi-card {
+            background: linear-gradient(145deg, rgba(26, 20, 45, 0.9) 0%, rgba(15, 8, 28, 0.95) 100%);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--luxury-border);
+            border-radius: 28px;
+            padding: 28px 20px;
+            text-align: center;
+            transition: all 0.35s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--luxury-purple), var(--luxury-gold), var(--luxury-purple));
+            transform: scaleX(0);
+            transition: transform 0.4s ease;
+        }
+        
+        .kpi-card:hover {
+            border-color: var(--luxury-purple);
+            transform: translateY(-6px);
+            box-shadow: 0 20px 35px rgba(168, 85, 247, 0.25);
+        }
+        
+        .kpi-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .kpi-value {
+            font-size: 42px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--luxury-gold) 0%, var(--luxury-purple) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin: 15px 0 8px;
+            letter-spacing: -1px;
+        }
+        
+        .kpi-label {
+            font-size: 14px;
+            color: var(--luxury-text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            font-weight: 600;
+        }
+        
+        /* Platform Cards */
+        .platform-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .platform-card {
+            background: linear-gradient(145deg, rgba(26, 20, 45, 0.9) 0%, rgba(15, 8, 28, 0.95) 100%);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--luxury-border);
+            border-radius: 28px;
+            padding: 26px;
+            transition: all 0.35s ease;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+        }
+        
+        .platform-card:hover {
+            border-color: var(--luxury-purple);
+            transform: translateY(-5px);
+            box-shadow: 0 16px 30px rgba(168, 85, 247, 0.2);
+        }
+        
+        .platform-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 22px;
+            font-weight: 700;
+            font-size: 20px;
+            background: linear-gradient(135deg, #fff 0%, var(--luxury-purple) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .platform-icon {
+            width: 36px;
+            height: 36px;
+            margin-right: 14px;
+            display: inline-block;
+            font-size: 32px;
+            filter: drop-shadow(0 0 6px rgba(168, 85, 247, 0.6));
+        }
+        
+        .platform-stat {
+            display: flex;
+            justify-content: space-between;
+            padding: 14px 0;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.25);
+            font-size: 15px;
+        }
+        
+        .platform-stat:last-child {
+            border-bottom: none;
+        }
+        
+        .stat-label {
+            color: var(--luxury-text-muted);
+            font-weight: 500;
+        }
+        
+        .stat-value {
+            color: var(--luxury-gold);
+            font-weight: 700;
+        }
+        
+        /* Charts */
+        .chart-container {
+            background: linear-gradient(145deg, rgba(26, 20, 45, 0.85) 0%, rgba(15, 8, 28, 0.9) 100%);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--luxury-border);
+            border-radius: 28px;
+            padding: 26px;
+            margin-bottom: 28px;
+            transition: all 0.3s ease;
+        }
+        
+        .chart-container:hover {
+            border-color: var(--luxury-purple);
+            box-shadow: 0 8px 25px rgba(168, 85, 247, 0.15);
+        }
+        
+        .chart-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--luxury-gold-light);
+            margin-bottom: 22px;
+            border-left: 5px solid var(--luxury-purple);
+            padding-left: 18px;
+            letter-spacing: -0.2px;
+        }
+        
+        .chart-wrapper {
+            height: 360px;
+            position: relative;
+        }
+        
+        /* SWOT Section */
+        .swot-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 28px;
+        }
+        
+        .swot-cell {
+            background: linear-gradient(145deg, rgba(26, 20, 45, 0.9) 0%, rgba(15, 8, 28, 0.95) 100%);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--luxury-border);
+            border-radius: 28px;
+            padding: 28px;
+            transition: all 0.3s ease;
+        }
+        
+        .swot-cell:hover {
+            border-color: var(--luxury-purple);
+            transform: translateY(-3px);
+        }
+        
+        .swot-header {
+            font-size: 22px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            padding-bottom: 14px;
+            border-bottom: 3px solid currentColor;
+        }
+        
+        .swot-strength { --swot-color: #10b981; }
+        .swot-weakness { --swot-color: #f43f5e; }
+        .swot-opportunity { --swot-color: #3b82f6; }
+        .swot-threat { --swot-color: #f97316; }
+        
+        .swot-header {
+            color: var(--swot-color);
+        }
+        
+        .swot-item {
+            padding: 12px 0 12px 18px;
+            border-left: 3px solid var(--swot-color);
+            color: var(--luxury-text);
+            font-size: 14px;
+            margin-bottom: 12px;
+            transition: all 0.2s ease;
+            background: rgba(255,255,255,0.02);
+            border-radius: 0 12px 12px 0;
+        }
+        
+        .swot-item:hover {
+            padding-left: 26px;
+            border-left-width: 5px;
+            background: rgba(168, 85, 247, 0.08);
+        }
+        
+        /* Article Grid */
+        .article-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+            gap: 24px;
+        }
+        
+        .article-card {
+            background: linear-gradient(145deg, rgba(26, 20, 45, 0.9) 0%, rgba(15, 8, 28, 0.95) 100%);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--luxury-border);
+            border-radius: 28px;
+            padding: 24px;
+            transition: all 0.35s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+        
+        .article-card:hover {
+            border-color: var(--luxury-purple);
+            transform: translateY(-6px);
+            box-shadow: 0 20px 30px rgba(168, 85, 247, 0.2);
+        }
+        
+        .article-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--luxury-text);
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+        
+        .article-date {
+            font-size: 12px;
+            color: var(--luxury-text-muted);
+            margin-bottom: 14px;
+            font-weight: 500;
+        }
+        
+        .article-badge {
+            display: inline-block;
+            padding: 5px 14px;
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.25) 0%, rgba(107, 70, 193, 0.25) 100%);
+            border-radius: 40px;
+            font-size: 11px;
+            color: var(--luxury-gold-light);
+            margin-right: 8px;
+            margin-bottom: 12px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+        
+        /* Insight Box */
+        .insight-box {
+            background: linear-gradient(135deg, rgba(26, 18, 48, 0.95) 0%, rgba(10, 4, 25, 0.98) 100%);
+            backdrop-filter: blur(12px);
+            border-left: 6px solid var(--luxury-gold);
+            border-radius: 24px;
+            padding: 28px;
+            margin-bottom: 24px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+        
+        .insight-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--luxury-gold);
+            margin-bottom: 14px;
+        }
+        
+        .insight-text {
+            color: var(--luxury-text);
+            font-size: 15px;
+            line-height: 1.7;
+        }
+        
+        /* Action Plan Luxury */
+        .action-plan {
+            background: linear-gradient(145deg, rgba(26, 20, 45, 0.9) 0%, rgba(15, 8, 28, 0.95) 100%);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--luxury-border);
+            border-radius: 28px;
+            padding: 28px;
+            margin-bottom: 24px;
+            transition: all 0.3s ease;
+        }
+        
+        .action-plan:hover {
+            border-color: var(--luxury-purple);
+        }
+        
+        .action-title {
+            font-size: 20px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--luxury-gold) 0%, var(--luxury-purple) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 20px;
+        }
+        
+        .action-list {
+            list-style: none;
+            counter-reset: step;
+        }
+        
+        .action-item {
+            counter-increment: step;
+            padding: 16px 0 16px 54px;
+            position: relative;
+            color: var(--luxury-text);
+            font-size: 15px;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+            transition: all 0.2s ease;
+        }
+        
+        .action-item:last-child {
+            border-bottom: none;
+        }
+        
+        .action-item:hover {
+            padding-left: 62px;
+            color: var(--luxury-gold-light);
+        }
+        
+        .action-item::before {
+            content: counter(step);
+            position: absolute;
+            left: 0;
+            top: 14px;
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, var(--luxury-purple) 0%, var(--luxury-dark-purple) 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 15px;
+            box-shadow: 0 4px 14px rgba(168, 85, 247, 0.5);
+            transition: all 0.2s ease;
+        }
+        
+        .action-item:hover::before {
+            transform: scale(1.08);
+            box-shadow: 0 6px 18px rgba(168, 85, 247, 0.7);
+        }
+        
+        /* Responsive */
+        @media (max-width: 900px) {
+            .kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 18px;
+            }
+            
+            .platform-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .swot-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-wrapper {
+                height: 280px;
+            }
+            
+            .header-title {
+                font-size: 26px;
+            }
+        }
+        
+        @media (max-width: 580px) {
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 18px;
+            }
+            
+            .tab-button {
+                padding: 8px 20px;
+                font-size: 12px;
+            }
+            
+            .kpi-value {
+                font-size: 34px;
+            }
+            
+            .action-item {
+                padding: 12px 0 12px 48px;
+                font-size: 13px;
+            }
+            
+            .action-item::before {
+                width: 32px;
+                height: 32px;
+                font-size: 13px;
+                top: 10px;
+            }
+        }
+        
+        /* Custom scrollbar Luxury */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #0f0a1a;
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, var(--luxury-purple), var(--luxury-dark-purple));
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--luxury-gold);
+        }
+        
+        ::selection {
+            background: rgba(168, 85, 247, 0.5);
+            color: var(--luxury-gold);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-title">👑 Royal Paper Co., Ltd.</div>
+        <div class="header-subtitle">รายงานวิเคราะห์สื่อสังคมประจำปี 2026 | Luxury Intelligence Dashboard</div>
+    </div>
+ 
+    <div class="tab-nav">
+        <button class="tab-button active" data-tab="overview">ภาพรวม</button>
+        <button class="tab-button" data-tab="instagram">Instagram</button>
+        <button class="tab-button" data-tab="tiktok">TikTok</button>
+        <button class="tab-button" data-tab="blog">บทความ</button>
+        <button class="tab-button" data-tab="comparison">เปรียบเทียบ</button>
+        <button class="tab-button" data-tab="insights">Insights</button>
+        <button class="tab-button" data-tab="plan">แผน 90 วัน</button>
+    </div>
+ 
+    <div class="container">
+        <!-- TAB 1: Overview -->
+        <div id="tab-overview" class="tab-content active">
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-label">ผู้ติดตาม Instagram</div>
+                    <div class="kpi-value">2,350</div>
+                    <div style="font-size: 12px; color: #c084fc;">↑ 15 ต่อเดือน</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">โพสต์ Instagram</div>
+                    <div class="kpi-value">215</div>
+                    <div style="font-size: 12px; color: #c084fc;">ทั้งหมด</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">วิดีโอ TikTok</div>
+                    <div class="kpi-value">8</div>
+                    <div style="font-size: 12px; color: #c084fc;">เนื้อหาสดใหม่</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">บทความ Blog</div>
+                    <div class="kpi-value">5</div>
+                    <div style="font-size: 12px; color: #fbbf24;">ข้อมูลมูลค่าสูง</div>
+                </div>
+            </div>
+ 
+            <div class="platform-grid">
+                <div class="platform-card">
+                    <div class="platform-header">
+                        <span class="platform-icon">📸</span>
+                        Instagram (Royal Press & Pack)
+                    </div>
+                    <div class="platform-stat"><span class="stat-label">ผู้ติดตาม</span><span class="stat-value">2,350</span></div>
+                    <div class="platform-stat"><span class="stat-label">กำลังติดตาม</span><span class="stat-value">237</span></div>
+                    <div class="platform-stat"><span class="stat-label">โพสต์</span><span class="stat-value">215</span></div>
+                    <div class="platform-stat"><span class="stat-label">บัญชีธุรกิจ</span><span class="stat-value">✓ ใช่</span></div>
+                </div>
+                <div class="platform-card">
+                    <div class="platform-header">
+                        <span class="platform-icon">🎵</span>
+                        TikTok (@royalpaper.co.th)
+                    </div>
+                    <div class="platform-stat"><span class="stat-label">ผู้ติดตาม</span><span class="stat-value">15</span></div>
+                    <div class="platform-stat"><span class="stat-label">หัวใจ</span><span class="stat-value">116</span></div>
+                    <div class="platform-stat"><span class="stat-label">วิดีโอ</span><span class="stat-value">8</span></div>
+                    <div class="platform-stat"><span class="stat-label">โฟกัส</span><span class="stat-value">ความสนุก/ทีม</span></div>
+                </div>
+                <div class="platform-card">
+                    <div class="platform-header">
+                        <span class="platform-icon">📝</span>
+                        Blog Content
+                    </div>
+                    <div class="platform-stat"><span class="stat-label">บทความ</span><span class="stat-value">5</span></div>
+                    <div class="platform-stat"><span class="stat-label">ภาษา</span><span class="stat-value">ไทย + English</span></div>
+                    <div class="platform-stat"><span class="stat-label">SEO</span><span class="stat-value">โรงพิมพ์, บรรจุภัณฑ์</span></div>
+                    <div class="platform-stat"><span class="stat-label">ปัจจุบัน</span><span class="stat-value">ข้อมูลสดใหม่</span></div>
+                </div>
+            </div>
+        </div>
+ 
+        <!-- TAB 2: Instagram -->
+        <div id="tab-instagram" class="tab-content">
+            <div class="kpi-grid">
+                <div class="kpi-card"><div class="kpi-label">ผู้ติดตาม</div><div class="kpi-value">2,350</div></div>
+                <div class="kpi-card"><div class="kpi-label">กำลังติดตาม</div><div class="kpi-value">237</div></div>
+                <div class="kpi-card"><div class="kpi-label">โพสต์ทั้งหมด</div><div class="kpi-value">215</div></div>
+                <div class="kpi-card"><div class="kpi-label">อัตราส่วน</div><div class="kpi-value">1:10</div></div>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">สถิติอัตราการติดตาม Instagram</div>
+                <div class="chart-wrapper"><canvas id="ig-stats-chart"></canvas></div>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">ความสนใจแหล่งที่มา</div>
+                <div class="chart-wrapper"><canvas id="ig-engagement-chart"></canvas></div>
+            </div>
+            <div class="insight-box"><div class="insight-title">💡 ข้อมูลเชิงลึก</div><div class="insight-text">บัญชี @royalpressandpack มีผู้ติดตาม 2,350 คน เป็นแบรนด์ที่เกี่ยวข้องของ Royal Paper ด้วยการเสนอสตอรี่ด้านการพิมพ์และบรรจุภัณฑ์อย่างถูกต้อง ผู้บริโภคได้รับการศึกษาเกี่ยวกับบริการคุณภาพสูง มีโพสต์มากขึ้นจะช่วยเพิ่มการมองเห็นตัวแบรนด์</div></div>
+        </div>
+ 
+        <!-- TAB 3: TikTok -->
+        <div id="tab-tiktok" class="tab-content">
+            <div class="kpi-grid">
+                <div class="kpi-card"><div class="kpi-label">ผู้ติดตาม</div><div class="kpi-value">15</div></div>
+                <div class="kpi-card"><div class="kpi-label">ทั้งหมดหัวใจ</div><div class="kpi-value">116</div></div>
+                <div class="kpi-card"><div class="kpi-label">วิดีโอ</div><div class="kpi-value">8</div></div>
+                <div class="kpi-card"><div class="kpi-label">ปุ่มแชร์</div><div class="kpi-value">12</div></div>
+            </div>
+            <div class="chart-container"><div class="chart-title">ประสิทธิภาพวิดีโอ TikTok (การเล่น/ไลค์)</div><div class="chart-wrapper"><canvas id="tiktok-performance-chart"></canvas></div></div>
+            <div class="chart-container"><div class="chart-title">ความน่าดึงดูดเทพอนด์</div><div class="chart-wrapper"><canvas id="tiktok-engagement-chart"></canvas></div></div>
+            <div class="insight-box"><div class="insight-title">💡 ข้อมูลเชิงลึก</div><div class="insight-text">บัญชี TikTok @royalpaper.co.th มีสไตล์เนื้อหาที่สนุกสนาน โฟกัสบนความสัมพันธ์ทีมและสถานการณ์ที่ตลกขบขัน วิดีโอที่มีการมีส่วนร่วมสูงสุด ("แกเป็นใครจับฉันมา") เล่น 852 ครั้ง เกิน 20 ไลค์ การสร้างเนื้อหาเพิ่มเติมจะเพิ่มการเจริงหา</div></div>
+        </div>
+ 
+        <!-- TAB 4: Blog -->
+        <div id="tab-blog" class="tab-content">
+            <div class="kpi-grid">
+                <div class="kpi-card"><div class="kpi-label">บทความรวม</div><div class="kpi-value">5</div></div>
+                <div class="kpi-card"><div class="kpi-label">หมวดหมู่</div><div class="kpi-value">4</div></div>
+                <div class="kpi-card"><div class="kpi-label">ภาษา</div><div class="kpi-value">2</div></div>
+                <div class="kpi-card"><div class="kpi-label">ความเกี่ยวข้อง</div><div class="kpi-value">🔥 High</div></div>
+            </div>
+            <div class="chart-container"><div class="chart-title">การกระจายบทความตามหมวดหมู่</div><div class="chart-wrapper"><canvas id="blog-category-chart"></canvas></div></div>
+            <div class="article-grid">
+                <div class="article-card"><div class="article-title">How to Order Custom Packaging</div><div class="article-date">แนะนำ / Guide</div><div class="article-badge">Guide</div><div style="font-size: 13px;">ขั้นตอนการสั่งทำบรรจุภัณฑ์ที่สมบูรณ์พร้อมตัวเลือก</div></div>
+                <div class="article-card"><div class="article-title">สร้าง Branding ผ่านกล่องบรรจุภัณฑ์</div><div class="article-date">2025-02-08</div><div class="article-badge">Strategy</div><div style="font-size: 13px;">วิธีใช้บรรจุภัณฑ์เพื่อสร้างแบรนด์และเพิ่มมูลค่า</div></div>
+                <div class="article-card"><div class="article-title">รับผลิต Packaging สวยๆ</div><div class="article-date">2023-08-02</div><div class="article-badge">Service</div><div style="font-size: 13px;">ความเชี่ยวชาญในการสร้างแพคเกจจิ้งแบบมืออาชีพ</div></div>
+                <div class="article-card"><div class="article-title">6 ความสำคัญของป้ายโปรโมท</div><div class="article-date">2023-06-26</div><div class="article-badge">Business</div><div style="font-size: 13px;">ป้ายโปรโมทร้านมีผลต่อยอดขายอย่างไร</div></div>
+                <div class="article-card"><div class="article-title">ซองฟอยล์สำหรับยาและเสริม</div><div class="article-date">2023-05-19</div><div class="article-badge">Education</div><div style="font-size: 13px;">ข้อดีของซองฟอยล์ในการเก็บรักษา</div></div>
+            </div>
+            <div class="insight-box"><div class="insight-title">🎯 โอกาส SEO</div><div class="insight-text">คำค้นหาหลัก: "โรงพิมพ์กล่อง", "บรรจุภัณฑ์", "ออกแบบกราฟิก", "การพิมพ์สติ๊กเกอร์" ตำแหน่งบทความหลัก: ซองฟอยล์, ป้ายโปรโมท, Branding บทความมีคุณภาพสูงสำหรับ B2B ที่ลูกค้าค้นหา</div></div>
+        </div>
+ 
+        <!-- TAB 5: Comparison -->
+        <div id="tab-comparison" class="tab-content">
+            <div class="chart-container"><div class="chart-title">เปรียบเทียบประสิทธิภาพของแพลตฟอร์ม</div><div class="chart-wrapper"><canvas id="comparison-radar-chart"></canvas></div></div>
+            <div class="platform-grid">
+                <div class="platform-card"><div class="platform-header" style="color:#f472b6;">📸 Instagram</div><div class="platform-stat"><span class="stat-label">ความสำคัญ</span><span class="stat-value">⭐⭐⭐⭐⭐</span></div><div class="platform-stat"><span class="stat-label">ปัจจุบัน</span><span class="stat-value">ผู้ติดตาม 2,350</span></div><div class="platform-stat"><span class="stat-label">โฟกัส</span><span class="stat-value">ภาพสวยๆ</span></div></div>
+                <div class="platform-card"><div class="platform-header" style="color:#22d3ee;">🎵 TikTok</div><div class="platform-stat"><span class="stat-label">ความสำคัญ</span><span class="stat-value">⭐⭐⭐</span></div><div class="platform-stat"><span class="stat-label">ปัจจุบัน</span><span class="stat-value">ผู้ติดตาม 15</span></div><div class="platform-stat"><span class="stat-label">โฟกัส</span><span class="stat-value">ความสนุก/วิดีโอ</span></div></div>
+                <div class="platform-card"><div class="platform-header" style="color:#4ade80;">📝 Blog</div><div class="platform-stat"><span class="stat-label">ความสำคัญ</span><span class="stat-value">⭐⭐⭐⭐</span></div><div class="platform-stat"><span class="stat-label">ปัจจุบัน</span><span class="stat-value">บทความ 5 เรื่อง</span></div><div class="platform-stat"><span class="stat-label">โฟกัส</span><span class="stat-value">ข้อมูล SEO</span></div></div>
+            </div>
+        </div>
+ 
+        <!-- TAB 6: Insights & SWOT -->
+        <div id="tab-insights" class="tab-content">
+            <div class="swot-grid">
+                <div class="swot-cell"><div class="swot-header swot-strength">💪 จุดแข็ง</div><div class="swot-item">บัญชี Instagram ที่ค่อนข้างมีผู้ติดตาม (2,350)</div><div class="swot-item">เนื้อหา TikTok สนุกและเกี่ยวข้อง ได้รับหัวใจ 116</div><div class="swot-item">บทความ Blog ครบถ้วน ครอบคลุมหัวข้อที่สำคัญ</div><div class="swot-item">ภาษาไทยที่ถูกต้องและมืออาชีพ</div><div class="swot-item">โฟกัสบนลูกค้า B2B (โรงแรม ร้านค้า)</div></div>
+                <div class="swot-cell"><div class="swot-header swot-weakness">⚠️ จุดอ่อน</div><div class="swot-item">TikTok ยังใหม่ เพิ่งเริ่ม (ผู้ติดตาม 15)</div><div class="swot-item">ขาดการวางแผนการตลาดองค์รวม</div><div class="swot-item">ไม่มีคลังข้อมูล Facebook ที่ทำงาน</div><div class="swot-item">ความสอดคล้องกันในการโพสต์ยังต่ำ</div><div class="swot-item">ขาด Instagram Stories/Reels ที่ระดับเหมาะสม</div></div>
+                <div class="swot-cell"><div class="swot-header swot-opportunity">🎯 โอกาส</div><div class="swot-item">ขยาย TikTok ผ่านวิดีโอของกระบวนการ</div><div class="swot-item">สร้างบท Reels/Stories บน Instagram</div><div class="swot-item">เพิ่ม Blog posts แมวทำให้ SEO ดีขึ้น</div><div class="swot-item">ตั้งค่า Facebook Page ที่ถูกต้อง</div><div class="swot-item">Influencer partnerships กับบล็อกเกอร์ท้องถิ่น</div></div>
+                <div class="swot-cell"><div class="swot-header swot-threat">🔴 ภัยคุกคาม</div><div class="swot-item">คู่แข่ง: Rajapack, T.A. Packaging, A.P. Printing</div><div class="swot-item">พฤติกรรมผู้บริโภคเปลี่ยนไปสู่ LinkedIn</div><div class="swot-item">การเปลี่ยนแปลงอัลกอริทึมบนแพลตฟอร์ม</div><div class="swot-item">การออกแบบ AI อาจแข่งขันกับบริการออกแบบ</div></div>
+            </div>
+        </div>
+ 
+        <!-- TAB 7: 90-Day Plan -->
+        <div id="tab-plan" class="tab-content">
+            <div class="action-plan"><div class="action-title">📋 ระยะที่ 1: เดือนแรก (สิ่งก่อสร้าง)</div><ul class="action-list"><li class="action-item">ตั้งค่าแนวทาง Editorial สำหรับแพลตฟอร์มแต่ละแพลตฟอร์ม (ความถี่ โทน สไตล์)</li><li class="action-item">ออกแบบอีเมลต้อนรับสำหรับลูกค้า B2B พร้อมลิงก์ที่เกี่ยวข้อง</li><li class="action-item">สร้างแบบหลังห้องสำหรับโพสต์ Instagram (กล่อง/สติกเกอร์ / ทีม)</li><li class="action-item">สร้างตัวอักษร TikTok ที่ทำซ้ำได้ (แนวทางสนุก, ทีม, การผลิต)</li><li class="action-item">กำหนดเป้าหมาย KPI (Instagram +500 ผู้ติดตาม, TikTok +100)</li></ul></div>
+            <div class="action-plan"><div class="action-title">📋 ระยะที่ 2: เดือนที่สอง (อัตราเร่ง)</div><ul class="action-list"><li class="action-item">โพสต์ Instagram 4 ครั้งต่อสัปดาห์ (โรงงาน/ผลิตภัณฑ์/ทีม/โปรโมต)</li><li class="action-item">โพสต์ TikTok 3 ครั้งต่อสัปดาห์ (ตัวหลักใหม่/ธุรกิจ/การทีมเวิร์ก)</li><li class="action-item">เผยแพร่บทความ Blog 2 เรื่องใหม่ (บรรจุภัณฑ์ + ขั้นตอนการสั่งซื้อ)</li><li class="action-item">สร้างหลัง Reels 2 Instagram (วิดีโอกระบวนการ + โปรโมต)</li><li class="action-item">เริ่มการติดตอม Cross-promotion ระหว่างแพลตฟอร์ม</li></ul></div>
+            <div class="action-plan"><div class="action-title">📋 ระยะที่ 3: เดือนที่สาม (เพิ่มประสิทธิภาพและรีเซ็ต)</div><ul class="action-list"><li class="action-item">วิเคราะห์ข้อมูล: หัวข้อไหนที่ดำเนิน? ศึกษาเพิ่มเติม</li><li class="action-item">ตั้งค่า Facebook Page และเชื่อมต่อกับ Instagram</li><li class="action-item">ลองใจ Instagram Stories ทุกวัน (Behind-the-scenes/Poll/Q&A)</li><li class="action-item">สร้างซีรี่ย์บทความ Blog "ความลับของการออกแบบ" (5 ส่วน)</li><li class="action-item">ติดตาม และชีวิต: เพิ่มผู้ติดตาม +1000 Instagram, +300 TikTok</li></ul></div>
+            <div class="insight-box"><div class="insight-title">🎖️ วัตถุประสงค์ 90 วัน</div><div class="insight-text"><strong>เป้าหมาย Instagram:</strong> ผู้ติดตาม 3,500 (จาก 2,350) โพสต์มูลค่าสูง 50 เรื่อง<br><strong>เป้าหมาย TikTok:</strong> ผู้ติดตาม 400 (จาก 15) ไลค์เฉลี่ย 300+ ต่อวิดีโอ<br><strong>เป้าหมาย Blog:</strong> บทความ 8-10 เรื่อง, SEO อันดับหนึ่งสำหรับ "โรงพิมพ์กล่อง"<br><strong>บน Overall:</strong> ความใจในแพลตฟอร์มแต่ละแพลตฟอร์ม โครงสร้างที่ทำให้เกิดการขายและลูกค้า B2B</div></div>
+        </div>
+    </div>
+ 
+    <script>
+        const chartInstances = {};
+ 
+        function createChart(canvasId, config) {
+            if (chartInstances[canvasId]) chartInstances[canvasId].destroy();
+            const ctx = document.getElementById(canvasId);
+            if (!ctx) return;
+            chartInstances[canvasId] = new Chart(ctx.getContext('2d'), config);
+        }
+ 
+        function initChartsForTab(tabName) {
+            if (tabName === 'instagram') {
+                createChart('ig-stats-chart', {
+                    type: 'bar', data: { labels: ['ผู้ติดตาม', 'กำลังติดตาม', 'โพสต์'], datasets: [{ label: 'Instagram Stats', data: [2350, 237, 215], backgroundColor: ['#c084fc', '#a855f7', '#d8b4fe'], borderRadius: 12 }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#c4b5fd' } } }, scales: { y: { grid: { color: '#2d2a4e' }, ticks: { color: '#c4b5fd' } }, x: { ticks: { color: '#c4b5fd' } } } }
+                });
+                createChart('ig-engagement-chart', {
+                    type: 'doughnut', data: { labels: ['โพสต์ท้องถิ่น', 'เพื่อน', 'หนึ่ง'], datasets: [{ data: [60, 25, 15], backgroundColor: ['#a855f7', '#fbbf24', '#d97706'], borderColor: '#03000a', borderWidth: 3 }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#c4b5fd' } } } }
+                });
+            } else if (tabName === 'tiktok') {
+                createChart('tiktok-performance-chart', {
+                    type: 'line', data: { labels: ['V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8'], datasets: [{ label: 'การเล่น', data: [784,432,329,342,852,716,463,464], borderColor: '#c084fc', backgroundColor: 'rgba(168,85,247,0.1)', tension: 0.4, fill: true }, { label: 'ไลค์', data: [12,9,10,16,20,14,16,19], borderColor: '#fbbf24', backgroundColor: 'rgba(251,191,36,0.05)', tension: 0.4, fill: true, yAxisID: 'y1' }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#c4b5fd' } } }, scales: { y: { grid: { color: '#2d2a4e' }, ticks: { color: '#c4b5fd' } }, y1: { position: 'right', grid: { drawOnChartArea: false }, ticks: { color: '#fbbf24' } }, x: { ticks: { color: '#c4b5fd' } } } }
+                });
+                createChart('tiktok-engagement-chart', {
+                    type: 'bar', data: { labels: ['Share', 'ความคิดเห็น', 'ทำซ้ำ'], datasets: [{ label: 'Engagement', data: [12,0,2], backgroundColor: ['#a855f7', '#f97316', '#fbbf24'], borderRadius: 10 }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#c4b5fd' } } }, scales: { y: { grid: { color: '#2d2a4e' }, ticks: { color: '#c4b5fd' } }, x: { ticks: { color: '#c4b5fd' } } } }
+                });
+            } else if (tabName === 'blog') {
+                createChart('blog-category-chart', {
+                    type: 'pie', data: { labels: ['Service Feature', 'Business Strategy', 'Business Tips', 'Product Education', 'Guide'], datasets: [{ data: [2,1,1,1,1], backgroundColor: ['#c084fc', '#fbbf24', '#f97316', '#a855f7', '#d97706'], borderColor: '#03000a', borderWidth: 2 }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#c4b5fd' } } } }
+                });
+            } else if (tabName === 'comparison') {
+                createChart('comparison-radar-chart', {
+                    type: 'radar', data: { labels: ['ผู้ติดตาม', 'เนื้อหา', 'ความมีส่วนร่วม', 'SEO', 'ความสอดคล้อง'], datasets: [{ label: 'Instagram', data: [90,85,70,75,80], borderColor: '#f472b6', backgroundColor: 'rgba(244,114,182,0.2)' }, { label: 'TikTok', data: [30,80,85,40,65], borderColor: '#22d3ee', backgroundColor: 'rgba(34,211,238,0.2)' }, { label: 'Blog', data: [50,75,50,90,60], borderColor: '#4ade80', backgroundColor: 'rgba(74,222,128,0.2)' }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#c4b5fd' } } }, scales: { r: { grid: { color: '#2d2a4e' }, ticks: { color: '#c4b5fd' } } } }
+                });
+            }
+        }
+ 
+        document.querySelectorAll('.tab-button').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+                document.getElementById('tab-' + this.dataset.tab).classList.add('active');
+                this.classList.add('active');
+                setTimeout(() => initChartsForTab(this.dataset.tab), 120);
+            });
+        });
+ 
+        initChartsForTab('overview');
+    </script>
+</body>
+</html>
